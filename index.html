@@ -1,245 +1,261 @@
 <!DOCTYPE html>
-
 <html lang="uk">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Helper</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Весіня Праця</title>
 <style>
-:root{
-  --bg:#000; --card:#111; --text:#fff; --accent: rgba(255,255,255,0.9);
-  --muted: rgba(255,255,255,0.35); --danger: #d33; --glass: rgba(255,255,255,0.04);
-}
-html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);}
-.wrap{min-height:100vh; padding-top:84px; text-align:center; position:relative; overflow-x:hidden;}
-.screen{
-  position:absolute; left:0; top:0; width:100%; min-height:100vh; padding-top:84px;
-  box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
-  transition:transform .55s cubic-bezier(.22,.9,.32,1), opacity .45s ease; opacity:0; transform:translateX(20%);
-}
-.screen.visible{ opacity:1; transform:translateX(0); pointer-events:all; }
-.screen.hidden{ opacity:0; pointer-events:none; transform:translateX(-20%); }
-h1{ margin:0 0 12px; font-size:34px; text-shadow:0 0 12px rgba(255,255,255,0.12); }
-.lead{ margin:0 0 8px; color:var(--muted); max-width:920px; padding:0 18px; }
-.btn{ margin:12px; padding:12px 22px; border-radius:12px; background:var(--card); color:var(--text); border:none; font-size:16px; cursor:pointer; box-shadow:0 0 10px rgba(255,255,255,0.06); transition:transform .18s ease, box-shadow .25s ease; }
-.btn:hover{ transform:scale(1.04); box-shadow:0 0 22px rgba(255,255,255,0.14); }
-.btn-admin{ background:purple; display:none; }
-.btn-logout{ background:var(--danger); display:none; color:#fff; }
-.form input{ width:360px; max-width:90%; padding:12px 14px; margin:8px 0; border-radius:12px; border:2px solid rgba(255,255,255,0.06); background:var(--card); color:var(--text); font-size:16px; box-shadow: inset 0 4px 14px rgba(0,0,0,0.6); }
-.form input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 18px rgba(255,255,255,0.06); background:#161616; }
-.arrow{ position:fixed; left:14px; top:14px; z-index:40; padding:8px 12px; border-radius:10px; border:2px solid #fff; background:transparent; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 10px rgba(255,255,255,0.06); }
-.arrow .icon{ display:inline-block; transition:transform .36s cubic-bezier(.2,.9,.3,1); }
-.arrow:hover .icon{ transform:translateX(-14px) scale(1.12); }
-.modal-bg{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; opacity:0; pointer-events:none; transition:opacity .2s ease; }
-.modal-bg.show{ opacity:1; pointer-events:all; }
-.modal-card{ background:var(--card); padding:20px 24px; border-radius:12px; color:var(--text); box-shadow:0 8px 30px rgba(0,0,0,0.6); max-width:92%; text-align:center; font-size:18px; }
-#sitesContainer{ display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin-top:20px; max-width:1100px; padding:0 12px; }
-.site-card{ width:260px; background:var(--card); border-radius:12px; padding:12px; color:#fff; display:flex; flex-direction:column; align-items:center; box-shadow:0 0 14px rgba(255,255,255,0.06); cursor:pointer; }
-.site-card:hover{ transform:translateY(-6px); }
-@media (max-width:480px){ h1{ font-size:22px; } .form input{ width:88%; } #sitesContainer{ gap:12px; } .site-card{ width:190px; } }
+body {margin:0; font-family:Arial; background:#000; color:#90ee90; position:relative; min-height:100vh; overflow-x:hidden;}
+body::before {content:"Весіня Праця"; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:200px; color:rgba(144,238,144,0.05); font-weight:bold; white-space:nowrap; z-index:0; pointer-events:none;}
+header {background:#111; padding:20px; text-align:center; font-size:26px; position:relative; z-index:2;}
+.container {padding:20px; max-width:1300px; margin:auto; position:relative; z-index:2;}
+.search-box {text-align:center; margin-bottom:15px; color:#90ee90;}
+.search-box input {padding:11px; width:275px; border:none; color:#de9210;}
+.products {display:grid; grid-template-columns:repeat(3,1fr); gap:22px; position:relative; z-index:2;}
+.product {background:#111; padding:10px; border:5px solid #90ee90; text-align:center;}
+.product img {width:100%; aspect-ratio:1/1; object-fit:cover; cursor:pointer;}
+button {padding:8px 25px; border:none; background:#90ee90; font-weight:bold; cursor:pointer; margin-top:10px;}
+button:hover {background:#6edc6e;}
+.edit-btn {background:orange; color:black;}
+.modal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:3;}
+.modal-content {background:#111; padding:50px; border:1px solid #90ee90; width:90%; max-width:400px; text-align:center;}
+.modal-content img {width:100%; aspect-ratio:1/1; object-fit:cover;}
+input, textarea, select {width:100%; padding:8px; margin:5px 0; border:none;}
+.leaf {position:fixed; top:-50px; font-size:24px; color:#32CD32; z-index:1; pointer-events:none; user-select:none; animation-name:fall; animation-timing-function: linear;}
+@keyframes fall {0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(110vh) rotate(360deg); opacity:0; }}
+@media(max-width:900px){.products{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.products{grid-template-columns:1fr;}.search-box input{width:100%;} body::before { font-size:80px; }}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-<!-- MAIN SCREEN -->
-
-<div id="screen1" class="screen visible">
-  <h1 id="mainTitle">Helper</h1>
-  <p id="lead" class="lead">Тут ви можете переглянути та спробувати різні сайти, щоб зрозуміти, який формат підходить вам найкраще</p>
-  <p id="welcomeUser" style="font-size:20px; margin-top:8px;">Вітаємо!</p>
-  <div style="margin-top:18px;">
-    <button id="viewBtn" class="btn">Переглянути сайти</button>
-    <button id="openLoginBtn" class="btn">Увійти</button>
-    <button id="openRegisterBtn" class="btn">Зареєструватися</button>
-    <button id="btnProfile" class="btn">Профіль</button>
-    <button id="adminBtn" class="btn btn-admin">Адмін панель</button>
-    <button id="logoutBtn" class="btn btn-logout">Вийти</button>
-  </div>
+<header>🛒 Весіня Праця</header>
+<div class="container">
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Пошук товару..." onkeyup="handleSearch()">
+<select id="categoryFilter" onchange="filterCategory()"><option value="">Всі категорії</option></select>
+</div>
+<div style="text-align:center;">
+<button id="addProductBtn" style="display:none;" onclick="openAddModal()">Додати товар</button>
+<button id="manageCategoriesBtn" style="display:none;" onclick="openCategoryModal()">Категорії</button>
+</div>
+<div class="products" id="products"></div>
 </div>
 
-<!-- SITES SCREEN -->
-
-<div id="screen2" class="screen hidden">
-  <button class="arrow" onclick="showScreen('screen1')"><span class="icon">⬅</span></button>
-  <h2 style="margin-top:40px;">Перегляд сайтів</h2>
-  <div id="siteActions" style="margin-top:8px;"></div>
-  <div id="sitesContainer"></div>
+<!-- Модальне перегляду -->
+<div class="modal" id="viewModal">
+<div class="modal-content">
+<img id="modalImg">
+<h3 id="modalTitle"></h3>
+<p id="modalPrice"></p>
+<p id="modalDesc"></p>
+<p id="modalCategory"></p>
+<button onclick="closeModal()">Назад</button>
+</div>
 </div>
 
-<!-- PROFILE SCREEN -->
-
-<div id="profileScreen" class="screen hidden">
-  <button class="arrow" onclick="showScreen('screen1')"><span class="icon">⬅</span></button>
-  <h2 id="profileHeader"></h2>
-  <div id="profileActions" style="margin-top:8px;"></div>
-  <div class="form" style="margin-top:12px;">
-    <input id="profileTG" type="text" placeholder="Введіть свій тг">
-    <input id="profilePhone" type="text" placeholder="Введіть свій номер">
-  </div>
+<!-- Модальне редагування -->
+<div class="modal" id="editModal">
+<div class="modal-content">
+<h3 id="editTitleText">Додати товар</h3>
+<input type="text" id="editTitle" placeholder="Назва">
+<input type="number" id="editPrice" placeholder="Ціна">
+<input type="file" id="editImageFile" accept="image/*">
+<textarea id="editDesc" placeholder="Опис"></textarea>
+<select id="editCategory"></select>
+<button onclick="saveProduct()">Зберегти</button>
+<button onclick="closeEditModal()">Скасувати</button>
+<button id="deleteBtn" onclick="deleteProduct()" style="background:red;color:white;display:none;margin-top:5px;">Видалити</button>
+</div>
 </div>
 
-<!-- MODAL -->
-
-<div id="modalBg" class="modal-bg" aria-hidden="true">
-  <div class="modal-card" id="modalCard"></div>
+<!-- Модальне керування категоріями -->
+<div class="modal" id="categoryModal">
+<div class="modal-content">
+<h3>Категорії</h3>
+<div id="categoryList"></div>
+<input type="text" id="newCategory" placeholder="Нова категорія">
+<button onclick="addCategory()">Додати</button>
+<button onclick="closeCategoryModal()">Скасувати</button>
+</div>
 </div>
 
 <script>
-// --- Користувачі та UI ---
-function el(id){ return document.getElementById(id); }
-function showModal(htmlOrText, isHTML=false, ms=1600){
-  const bg=el('modalBg'), card=el('modalCard');
-  if(isHTML){ card.innerHTML=htmlOrText; } else { card.textContent=htmlOrText; }
-  bg.classList.add('show');
-  if(!isHTML) setTimeout(()=> bg.classList.remove('show'), ms);
+// Падаюче листя
+function createLeaf(){
+    const leaf=document.createElement('div');
+    leaf.className='leaf';
+    leaf.style.left=Math.random()*window.innerWidth+'px';
+    leaf.style.fontSize=12+Math.random()*24+'px';
+    leaf.style.animationDuration=5+Math.random()*5+'s';
+    leaf.innerHTML='🍃';
+    document.body.appendChild(leaf);
+    setTimeout(()=>leaf.remove(),10000);
 }
-const screens=['screen1','screen2','profileScreen'];
-function showScreen(id){
-  screens.forEach(s=>{
-    const node=el(s);
-    if(s===id){ node.classList.add('visible'); node.classList.remove('hidden'); }
-    else { node.classList.remove('visible'); node.classList.add('hidden'); }
-  });
-}
+setInterval(createLeaf,500);
 
-function loadUsers(){ return JSON.parse(localStorage.getItem('users')||'[]'); }
-function saveUsers(arr){ localStorage.setItem('users', JSON.stringify(arr)); }
-function setCurrentUser(u){ localStorage.setItem('currentUser', JSON.stringify(u)); }
-function getCurrentUser(){ return JSON.parse(localStorage.getItem('currentUser')||'null'); }
-function clearCurrentUser(){ localStorage.removeItem('currentUser'); }
+// Магазин
+let adminMode=false;
+let editingId=null;
+let products=JSON.parse(localStorage.getItem("products"))||[
+{id:1,title:"Навушники",price:1500,desc:"Бездротові навушники",image:"https://picsum.photos/500?1",category:"Аудіо"},
+{id:2,title:"Смартфон",price:18000,desc:"Сучасний смартфон",image:"https://picsum.photos/500?2",category:"Телефони"},
+{id:3,title:"Кросівки",price:2700,desc:"Стильні кросівки",image:"https://picsum.photos/500?3",category:"Взуття"}
+];
+let categories=JSON.parse(localStorage.getItem("categories"))||["Аудіо","Телефони","Взуття"];
 
-function updateUserUI(){
-  const cur=getCurrentUser();
-  el('btnProfile').style.display=cur ? 'inline-block' : 'none';
-  el('logoutBtn').style.display=cur ? 'inline-block' : 'none';
-  el('openLoginBtn').style.display=cur ? 'none' : 'inline-block';
-  el('openRegisterBtn').style.display=cur ? 'none' : 'inline-block';
-  el('welcomeUser').textContent=cur ? `👋 Привіт, ${cur.name||cur.username||cur.email}!` : 'Вітаємо!';
-  if(cur && (cur.email==='09fushan90@gmail.com' || cur.username==='admin')){ el('adminBtn').style.display='inline-block'; } else el('adminBtn').style.display='none';
+function saveToStorage(){
+localStorage.setItem("products",JSON.stringify(products));
+localStorage.setItem("categories",JSON.stringify(categories));
+populateCategorySelects();
 }
 
-function updateProfileScreen(){
-  const cur=getCurrentUser();
-  const header=el('profileHeader'), actions=el('profileActions');
-  const tgInput=el('profileTG'), phoneInput=el('profilePhone');
-  actions.innerHTML='';
-  tgInput.value=cur?.tg||'';
-  phoneInput.value=cur?.phone||'';
-  if(cur){
-    header.textContent=`Вітаємо, ${cur.name||cur.username}!`;
-    const saveBtn=document.createElement('button');
-    saveBtn.className='btn'; saveBtn.textContent='Зберегти';
-    saveBtn.onclick=function(){
-      cur.tg=tgInput.value.trim(); cur.phone=phoneInput.value.trim();
-      const users=loadUsers(); const idx=users.findIndex(u=>u.email===cur.email||u.username===cur.username);
-      if(idx!==-1) users[idx]=cur;
-      saveUsers(users); setCurrentUser(cur);
-      showModal('Профіль збережено!');
-    };
-    actions.appendChild(saveBtn);
-  } else { header.textContent='Ви ще не зареєструвалися'; }
-}
-
-// --- Реєстрація/Логін ---
-el('openRegisterBtn').addEventListener('click', ()=> showModal(`
-  <h3>Реєстрація</h3>
-  <input id="regUser" placeholder="Ім'я/Логін"><br>
-  <input id="regEmail" placeholder="Пошта"><br>
-  <input id="regPass" placeholder="Пароль" type="password"><br><br>
-  <button id="regBtn" class="btn">Зареєструватися</button>
-  <button id="closeModalBtn" class="btn">Закрити</button>
-`, true));
-
-el('openLoginBtn').addEventListener('click', ()=> showModal(`
-  <h3>Вхід</h3>
-  <input id="loginUser" placeholder="Логін/Пошта"><br>
-  <input id="loginPass" placeholder="Пароль" type="password"><br><br>
-  <button id="loginBtn" class="btn">Увійти</button>
-  <button id="closeModalBtn" class="btn">Закрити</button>
-`, true));
-
-document.addEventListener('click', e=>{
-  if(e.target.id==='closeModalBtn'){ el('modalBg').classList.remove('show'); }
-  if(e.target.id==='regBtn'){
-    const u=el('regUser').value.trim(), p=el('regPass').value.trim(), eMail=el('regEmail')?.value.trim();
-    if(!u||!p){ alert('Заповніть всі поля'); return; }
-    const users=loadUsers();
-    if(users.find(x=>x.username===u||x.email===eMail)){ alert('Такий користувач вже існує'); return; }
-    const user={username:u,password:p,email:eMail||'',tg:'',phone:''};
-    users.push(user); saveUsers(users); setCurrentUser(user);
-    el('modalBg').classList.remove('show'); updateUserUI(); updateProfileScreen();
-  }
-  if(e.target.id==='loginBtn'){
-    const u=el('loginUser').value.trim(), p=el('loginPass').value.trim();
-    const users=loadUsers();
-    const user=users.find(x=>x.username===u||x.email===u); 
-    if(user && user.password===p){ setCurrentUser(user); el('modalBg').classList.remove('show'); updateUserUI(); updateProfileScreen(); }
-    else alert('Невірний логін або пароль');
-  }
+function populateCategorySelects(){
+const editCat=document.getElementById("editCategory");
+const filterCat=document.getElementById("categoryFilter");
+editCat.innerHTML="<option value=''>Без категорії</option>";
+filterCat.innerHTML="<option value=''>Всі категорії</option>";
+categories.forEach(cat=>{
+editCat.innerHTML+=`<option value="${cat}">${cat}</option>`;
+filterCat.innerHTML+=`<option value="${cat}">${cat}</option>`;
 });
+populateCategoryList();
+}
 
-// --- Вихід ---
-el('logoutBtn').addEventListener('click', ()=>{
-  clearCurrentUser(); updateUserUI(); showScreen('screen1'); showModal('Ви вийшли з акаунту');
+function renderProducts(list=products){
+let container=document.getElementById("products");
+container.innerHTML="";
+list.forEach(p=>{
+container.innerHTML+=`
+<div class="product">
+<img src="${p.image}" onclick="openViewModal(${p.id})">
+<h4>${p.title}</h4>
+<p>${p.price} грн</p>
+<p>${p.category||""}</p>
+${adminMode?`<button class="edit-btn" onclick="openEditModal(${p.id})">Редагувати</button>`:""}
+<button onclick="orderProduct('${encodeURIComponent(p.title)}', ${p.price})">Замовити</button>
+</div>`;
 });
-
-// --- САЙТИ ---
-let sites=JSON.parse(localStorage.getItem('sites')||'[]');
-let editingIndex=null;
-
-function renderSitesScreen(){
-  const container=el('sitesContainer'); container.innerHTML='';
-  if(sites.length===0){ container.innerHTML='<p>Поки що немає сайтів</p>'; }
-  else sites.forEach((s,i)=>{
-    const card=document.createElement('div'); card.className='site-card';
-    card.innerHTML=`<h4>${s.name}</h4><p>${s.desc}</p><a href="${s.url}" target="_blank">${s.url}</a>`;
-    container.appendChild(card);
-    card.onclick=()=>getCurrentUser()?openSiteModal(i):alert('Увійдіть, щоб редагувати сайти');
-  });
-  localStorage.setItem('sites',JSON.stringify(sites));
 }
 
-function openSiteModal(index=null){
-  if(!getCurrentUser()){ alert('Увійдіть для редагування'); return; }
-  editingIndex=index;
-  const modal=el('modalBg'); modal.classList.add('show'); 
-  const modalContent=el('modalCard');
-  modalContent.innerHTML=`
-    <h3>Сайт</h3>
-    <input type="text" id="siteName" placeholder="Назва сайту"><br><br>
-    <input type="text" id="siteURL" placeholder="URL сайту"><br><br>
-    <input type="text" id="siteDesc" placeholder="Опис"><br><br>
-    <button id="saveSiteBtn" class="btn">Зберегти</button>
-    <button id="deleteSiteBtn" class="btn" style="background:#d33;margin-top:8px;display:none;">Видалити</button>
-    <button id="closeModalBtn" class="btn" style="margin-top:8px;">Закрити</button>
-  `;
-  const sName=el('siteName'), sURL=el('siteURL'), sDesc=el('siteDesc'), delBtn=el('deleteSiteBtn');
-  if(index!==null){ const s=sites[index]; sName.value=s.name; sURL.value=s.url; sDesc.value=s.desc; delBtn.style.display='inline-block'; }
-  delBtn.onclick=()=>{ if(editingIndex!==null){ sites.splice(editingIndex,1); renderSitesScreen(); modal.classList.remove('show'); } };
-  el('saveSiteBtn').onclick=()=>{
-    const name=sName.value.trim(), url=sURL.value.trim(), desc=sDesc.value.trim();
-    if(!name||!url){ alert('Введіть назву та URL'); return; }
-    const site={name,url,desc};
-    if(editingIndex!==null) sites[editingIndex]=site; else sites.push(site);
-    renderSitesScreen(); modal.classList.remove('show');
-  };
-  el('closeModalBtn').onclick=()=>modal.classList.remove('show');
+function orderProduct(title,price){
+const url=`https://t.me/Fushan90?text=${encodeURIComponent(`Хочу замовити ${decodeURIComponent(title)} за ${price} грн`)}`;
+window.open(url,"_blank");
 }
 
-// --- кнопка додати сайт ---
-const addBtn=document.createElement('button'); addBtn.textContent='Додати сайт'; addBtn.className='btn';
-addBtn.onclick=()=>openSiteModal();
-el('siteActions').appendChild(addBtn);
+function handleSearch(){
+let value=document.getElementById("searchInput").value.toLowerCase();
+if(value==="0990"){adminMode=true;document.getElementById("addProductBtn").style.display="inline-block";document.getElementById("manageCategoriesBtn").style.display="inline-block";renderProducts();return;}
+adminMode=false;document.getElementById("addProductBtn").style.display="none";document.getElementById("manageCategoriesBtn").style.display="none";
+let filtered=products.filter(p=>p.title.toLowerCase().includes(value));
+renderProducts(filtered);
+}
 
-// --- MAIN buttons ---
-el('btnProfile').addEventListener('click', ()=>{ updateProfileScreen(); showScreen('profileScreen'); });
-el('viewBtn').addEventListener('click', ()=> showScreen('screen2'));
+function filterCategory(){
+const cat=document.getElementById("categoryFilter").value;
+if(!cat){renderProducts(); return;}
+renderProducts(products.filter(p=>p.category===cat));
+}
 
-// --- INIT ---
-updateUserUI(); renderSitesScreen();
+function openViewModal(id){
+let p=products.find(x=>x.id===id);
+document.getElementById("modalImg").src=p.image;
+document.getElementById("modalTitle").innerText=p.title;
+document.getElementById("modalPrice").innerText=p.price+" грн";
+document.getElementById("modalDesc").innerText=p.desc;
+document.getElementById("modalCategory").innerText=p.category?"Категорія: "+p.category:"";
+document.getElementById("viewModal").style.display="flex";
+}
+
+function closeModal(){document.getElementById("viewModal").style.display="none";}
+
+function openAddModal(){
+editingId=null;
+document.getElementById("editTitleText").innerText="Додати товар";
+document.getElementById("editTitle").value="";
+document.getElementById("editPrice").value="";
+document.getElementById("editImageFile").value="";
+document.getElementById("editDesc").value="";
+document.getElementById("editCategory").value="";
+document.getElementById("deleteBtn").style.display="none";
+document.getElementById("editModal").style.display="flex";
+}
+
+function openEditModal(id){
+let p=products.find(x=>x.id===id);
+editingId=id;
+document.getElementById("editTitleText").innerText="Редагувати товар";
+document.getElementById("editTitle").value=p.title;
+document.getElementById("editPrice").value=p.price;
+document.getElementById("editDesc").value=p.desc;
+document.getElementById("editCategory").value=p.category||"";
+document.getElementById("editImageFile").value="";
+document.getElementById("deleteBtn").style.display="block";
+document.getElementById("editModal").style.display="flex";
+}
+
+function closeEditModal(){document.getElementById("editModal").style.display="none";}
+
+function saveProduct(){
+let title=document.getElementById("editTitle").value;
+let price=document.getElementById("editPrice").value;
+let desc=document.getElementById("editDesc").value;
+let category=document.getElementById("editCategory").value;
+let fileInput=document.getElementById("editImageFile");
+if(!title||!price||!desc) return alert("Заповніть всі поля");
+if(fileInput.files && fileInput.files[0]){
+let reader=new FileReader();
+reader.onload=function(e){saveProductData(title,price,desc,category,e.target.result);}
+reader.readAsDataURL(fileInput.files[0]);
+}else{
+let existingImage=null;
+if(editingId){existingImage=products.find(x=>x.id===editingId).image;}
+saveProductData(title,price,desc,category,existingImage);
+}
+}
+
+function saveProductData(title,price,desc,category,image){
+if(editingId){
+let p=products.find(x=>x.id===editingId);
+p.title=title;p.price=price;p.desc=desc;p.category=category;p.image=image;
+}else{products.push({id:Date.now(),title,price,desc,image,category});}
+saveToStorage();closeEditModal();renderProducts();
+}
+
+function deleteProduct(){
+if(editingId){
+if(confirm("Ви впевнені, що хочете видалити цей товар?")){
+products=products.filter(p=>p.id!==editingId);
+saveToStorage();renderProducts();closeEditModal();
+}}
+}
+
+// Керування категоріями
+function openCategoryModal(){document.getElementById("categoryModal").style.display="flex";}
+function closeCategoryModal(){document.getElementById("categoryModal").style.display="none";}
+function populateCategoryList(){
+let list=document.getElementById("categoryList");
+list.innerHTML="";
+categories.forEach(cat=>{
+list.innerHTML+=`<div>${cat} <button onclick="removeCategory('${cat}')">Видалити</button></div>`;
+});
+}
+function addCategory(){
+let cat=document.getElementById("newCategory").value.trim();
+if(!cat) return;
+if(!categories.includes(cat)) categories.push(cat);
+document.getElementById("newCategory").value="";
+saveToStorage();
+}
+function removeCategory(cat){
+if(confirm(`Видалити категорію "${cat}"? Всі товари залишаться без категорії.`)){
+categories=categories.filter(c=>c!==cat);
+products.forEach(p=>{if(p.category===cat) p.category="";});
+saveToStorage();
+}
+}
+
+populateCategorySelects();
+renderProducts();
 </script>
-
-</div>
 </body>
 </html>
