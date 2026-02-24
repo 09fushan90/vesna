@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Helper</title>
+<style>
+:root{
+  --bg:#000; --card:#111; --text:#fff; --accent: rgba(255,255,255,0.9);
+  --muted: rgba(255,255,255,0.35); --danger: #d33; --glass: rgba(255,255,255,0.04);
+}
+html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);}
+.wrap{min-height:100vh; padding-top:84px; text-align:center; position:relative; overflow-x:hidden;}
+.screen{
+  position:absolute; left:0; top:0; width:100%; min-height:100vh; padding-top:84px;
+  box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  transition:transform .55s cubic-bezier(.22,.9,.32,1), opacity .45s ease; opacity:0; transform:translateX(20%);
+}
+.screen.visible{ opacity:1; transform:translateX(0); pointer-events:all; }
+.screen.hidden{ opacity:0; pointer-events:none; transform:translateX(-20%); }
+h1{ margin:0 0 12px; font-size:34px; text-shadow:0 0 12px rgba(255,255,255,0.12); }
+.lead{ margin:0 0 8px; color:var(--muted); max-width:920px; padding:0 18px; }
+.btn{ margin:12px; padding:12px 22px; border-radius:12px; background:var(--card); color:var(--text); border:none; font-size:16px; cursor:pointer; box-shadow:0 0 10px rgba(255,255,255,0.06); transition:transform .18s ease, box-shadow .25s ease; }
+.btn:hover{ transform:scale(1.04); box-shadow:0 0 22px rgba(255,255,255,0.14); }
+.btn-admin{ background:purple; display:none; }
+.btn-logout{ background:var(--danger); display:none; color:#fff; }
+.form input{ width:360px; max-width:90%; padding:12px 14px; margin:8px 0; border-radius:12px; border:2px solid rgba(255,255,255,0.06); background:var(--card); color:var(--text); font-size:16px; box-shadow: inset 0 4px 14px rgba(0,0,0,0.6); }
+.form input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 18px rgba(255,255,255,0.06); background:#161616; }
+.arrow{ position:fixed; left:14px; top:14px; z-index:40; padding:8px 12px; border-radius:10px; border:2px solid #fff; background:transparent; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 10px rgba(255,255,255,0.06); }
+.arrow .icon{ display:inline-block; transition:transform .36s cubic-bezier(.2,.9,.3,1); }
+.arrow:hover .icon{ transform:translateX(-14px) scale(1.12); }
+.modal-bg{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:200; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+.modal-bg.show{ opacity:1; pointer-events:all; }
+.modal-card{ background:var(--card); padding:20px 24px; border-radius:12px; color:var(--text); box-shadow:0 8px 30px rgba(0,0,0,0.6); max-width:92%; text-align:center; font-size:18px; }
+#sitesContainer{ display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin-top:20px; max-width:1100px; padding:0 12px; }
+.site-card{ width:260px; background:var(--card); border-radius:12px; padding:12px; color:#fff; display:flex; flex-direction:column; align-items:center; box-shadow:0 0 14px rgba(255,255,255,0.06); cursor:pointer; }
+.site-card:hover{ transform:translateY(-6px); }
+@media (max-width:480px){ h1{ font-size:22px; } .form input{ width:88%; } #sitesContainer{ gap:12px; } .site-card{ width:190px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- MAIN SCREEN -->
+
+<div id="screen1" class="screen visible">
+  <h1 id="mainTitle">Helper</h1>
+  <p id="lead" class="lead">Тут ви можете переглянути та спробувати різні сайти, щоб зрозуміти, який формат підходить вам найкраще</p>
+  <p id="welcomeUser" style="font-size:20px; margin-top:8px;">Вітаємо!</p>
+  <div style="margin-top:18px;">
+    <button id="viewBtn" class="btn">Переглянути сайти</button>
+    <button id="openLoginBtn" class="btn">Увійти</button>
+    <button id="openRegisterBtn" class="btn">Зареєструватися</button>
+    <button id="btnProfile" class="btn">Профіль</button>
+    <button id="adminBtn" class="btn btn-admin">Адмін панель</button>
+    <button id="logoutBtn" class="btn btn-logout">Вийти</button>
+  </div>
+</div>
+
+<!-- SITES SCREEN -->
+
+<div id="screen2" class="screen hidden">
+  <button class="arrow" onclick="showScreen('screen1')"><span class="icon">⬅</span></button>
+  <h2 style="margin-top:40px;">Перегляд сайтів</h2>
+  <div id="siteActions" style="margin-top:8px;"></div>
+  <div id="sitesContainer"></div>
+</div>
+
+<!-- PROFILE SCREEN -->
+
+<div id="profileScreen" class="screen hidden">
+  <button class="arrow" onclick="showScreen('screen1')"><span class="icon">⬅</span></button>
+  <h2 id="profileHeader"></h2>
+  <div id="profileActions" style="margin-top:8px;"></div>
+  <div class="form" style="margin-top:12px;">
+    <input id="profileTG" type="text" placeholder="Введіть свій тг">
+    <input id="profilePhone" type="text" placeholder="Введіть свій номер">
+  </div>
+</div>
+
+<!-- MODAL -->
+
+<div id="modalBg" class="modal-bg" aria-hidden="true">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+
+<script>
+// --- Користувачі та UI ---
+function el(id){ return document.getElementById(id); }
+function showModal(htmlOrText, isHTML=false, ms=1600){
+  const bg=el('modalBg'), card=el('modalCard');
+  if(isHTML){ card.innerHTML=htmlOrText; } else { card.textContent=htmlOrText; }
+  bg.classList.add('show');
+  if(!isHTML) setTimeout(()=> bg.classList.remove('show'), ms);
+}
+const screens=['screen1','screen2','profileScreen'];
+function showScreen(id){
+  screens.forEach(s=>{
+    const node=el(s);
+    if(s===id){ node.classList.add('visible'); node.classList.remove('hidden'); }
+    else { node.classList.remove('visible'); node.classList.add('hidden'); }
+  });
+}
+
+function loadUsers(){ return JSON.parse(localStorage.getItem('users')||'[]'); }
+function saveUsers(arr){ localStorage.setItem('users', JSON.stringify(arr)); }
+function setCurrentUser(u){ localStorage.setItem('currentUser', JSON.stringify(u)); }
+function getCurrentUser(){ return JSON.parse(localStorage.getItem('currentUser')||'null'); }
+function clearCurrentUser(){ localStorage.removeItem('currentUser'); }
+
+function updateUserUI(){
+  const cur=getCurrentUser();
+  el('btnProfile').style.display=cur ? 'inline-block' : 'none';
+  el('logoutBtn').style.display=cur ? 'inline-block' : 'none';
+  el('openLoginBtn').style.display=cur ? 'none' : 'inline-block';
+  el('openRegisterBtn').style.display=cur ? 'none' : 'inline-block';
+  el('welcomeUser').textContent=cur ? `👋 Привіт, ${cur.name||cur.username||cur.email}!` : 'Вітаємо!';
+  if(cur && (cur.email==='09fushan90@gmail.com' || cur.username==='admin')){ el('adminBtn').style.display='inline-block'; } else el('adminBtn').style.display='none';
+}
+
+function updateProfileScreen(){
+  const cur=getCurrentUser();
+  const header=el('profileHeader'), actions=el('profileActions');
+  const tgInput=el('profileTG'), phoneInput=el('profilePhone');
+  actions.innerHTML='';
+  tgInput.value=cur?.tg||'';
+  phoneInput.value=cur?.phone||'';
+  if(cur){
+    header.textContent=`Вітаємо, ${cur.name||cur.username}!`;
+    const saveBtn=document.createElement('button');
+    saveBtn.className='btn'; saveBtn.textContent='Зберегти';
+    saveBtn.onclick=function(){
+      cur.tg=tgInput.value.trim(); cur.phone=phoneInput.value.trim();
+      const users=loadUsers(); const idx=users.findIndex(u=>u.email===cur.email||u.username===cur.username);
+      if(idx!==-1) users[idx]=cur;
+      saveUsers(users); setCurrentUser(cur);
+      showModal('Профіль збережено!');
+    };
+    actions.appendChild(saveBtn);
+  } else { header.textContent='Ви ще не зареєструвалися'; }
+}
+
+// --- Реєстрація/Логін ---
+el('openRegisterBtn').addEventListener('click', ()=> showModal(`
+  <h3>Реєстрація</h3>
+  <input id="regUser" placeholder="Ім'я/Логін"><br>
+  <input id="regEmail" placeholder="Пошта"><br>
+  <input id="regPass" placeholder="Пароль" type="password"><br><br>
+  <button id="regBtn" class="btn">Зареєструватися</button>
+  <button id="closeModalBtn" class="btn">Закрити</button>
+`, true));
+
+el('openLoginBtn').addEventListener('click', ()=> showModal(`
+  <h3>Вхід</h3>
+  <input id="loginUser" placeholder="Логін/Пошта"><br>
+  <input id="loginPass" placeholder="Пароль" type="password"><br><br>
+  <button id="loginBtn" class="btn">Увійти</button>
+  <button id="closeModalBtn" class="btn">Закрити</button>
+`, true));
+
+document.addEventListener('click', e=>{
+  if(e.target.id==='closeModalBtn'){ el('modalBg').classList.remove('show'); }
+  if(e.target.id==='regBtn'){
+    const u=el('regUser').value.trim(), p=el('regPass').value.trim(), eMail=el('regEmail')?.value.trim();
+    if(!u||!p){ alert('Заповніть всі поля'); return; }
+    const users=loadUsers();
+    if(users.find(x=>x.username===u||x.email===eMail)){ alert('Такий користувач вже існує'); return; }
+    const user={username:u,password:p,email:eMail||'',tg:'',phone:''};
+    users.push(user); saveUsers(users); setCurrentUser(user);
+    el('modalBg').classList.remove('show'); updateUserUI(); updateProfileScreen();
+  }
+  if(e.target.id==='loginBtn'){
+    const u=el('loginUser').value.trim(), p=el('loginPass').value.trim();
+    const users=loadUsers();
+    const user=users.find(x=>x.username===u||x.email===u); 
+    if(user && user.password===p){ setCurrentUser(user); el('modalBg').classList.remove('show'); updateUserUI(); updateProfileScreen(); }
+    else alert('Невірний логін або пароль');
+  }
+});
+
+// --- Вихід ---
+el('logoutBtn').addEventListener('click', ()=>{
+  clearCurrentUser(); updateUserUI(); showScreen('screen1'); showModal('Ви вийшли з акаунту');
+});
+
+// --- САЙТИ ---
+let sites=JSON.parse(localStorage.getItem('sites')||'[]');
+let editingIndex=null;
+
+function renderSitesScreen(){
+  const container=el('sitesContainer'); container.innerHTML='';
+  if(sites.length===0){ container.innerHTML='<p>Поки що немає сайтів</p>'; }
+  else sites.forEach((s,i)=>{
+    const card=document.createElement('div'); card.className='site-card';
+    card.innerHTML=`<h4>${s.name}</h4><p>${s.desc}</p><a href="${s.url}" target="_blank">${s.url}</a>`;
+    container.appendChild(card);
+    card.onclick=()=>getCurrentUser()?openSiteModal(i):alert('Увійдіть, щоб редагувати сайти');
+  });
+  localStorage.setItem('sites',JSON.stringify(sites));
+}
+
+function openSiteModal(index=null){
+  if(!getCurrentUser()){ alert('Увійдіть для редагування'); return; }
+  editingIndex=index;
+  const modal=el('modalBg'); modal.classList.add('show'); 
+  const modalContent=el('modalCard');
+  modalContent.innerHTML=`
+    <h3>Сайт</h3>
+    <input type="text" id="siteName" placeholder="Назва сайту"><br><br>
+    <input type="text" id="siteURL" placeholder="URL сайту"><br><br>
+    <input type="text" id="siteDesc" placeholder="Опис"><br><br>
+    <button id="saveSiteBtn" class="btn">Зберегти</button>
+    <button id="deleteSiteBtn" class="btn" style="background:#d33;margin-top:8px;display:none;">Видалити</button>
+    <button id="closeModalBtn" class="btn" style="margin-top:8px;">Закрити</button>
+  `;
+  const sName=el('siteName'), sURL=el('siteURL'), sDesc=el('siteDesc'), delBtn=el('deleteSiteBtn');
+  if(index!==null){ const s=sites[index]; sName.value=s.name; sURL.value=s.url; sDesc.value=s.desc; delBtn.style.display='inline-block'; }
+  delBtn.onclick=()=>{ if(editingIndex!==null){ sites.splice(editingIndex,1); renderSitesScreen(); modal.classList.remove('show'); } };
+  el('saveSiteBtn').onclick=()=>{
+    const name=sName.value.trim(), url=sURL.value.trim(), desc=sDesc.value.trim();
+    if(!name||!url){ alert('Введіть назву та URL'); return; }
+    const site={name,url,desc};
+    if(editingIndex!==null) sites[editingIndex]=site; else sites.push(site);
+    renderSitesScreen(); modal.classList.remove('show');
+  };
+  el('closeModalBtn').onclick=()=>modal.classList.remove('show');
+}
+
+// --- кнопка додати сайт ---
+const addBtn=document.createElement('button'); addBtn.textContent='Додати сайт'; addBtn.className='btn';
+addBtn.onclick=()=>openSiteModal();
+el('siteActions').appendChild(addBtn);
+
+// --- MAIN buttons ---
+el('btnProfile').addEventListener('click', ()=>{ updateProfileScreen(); showScreen('profileScreen'); });
+el('viewBtn').addEventListener('click', ()=> showScreen('screen2'));
+
+// --- INIT ---
+updateUserUI(); renderSitesScreen();
+</script>
+
+</div>
+</body>
+</html>
