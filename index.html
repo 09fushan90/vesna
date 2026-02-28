@@ -15,244 +15,197 @@ header {background:#111; padding:20px; text-align:center; font-size:26px; positi
 .product {background:#111; padding:10px; border:5px solid #90ee90; text-align:center;}
 .product img {width:100%; aspect-ratio:1/1; object-fit:cover; cursor:pointer;}
 button {padding:8px 25px; border:none; background:#90ee90; font-weight:bold; cursor:pointer; margin-top:10px;}
-button:hover {background:#6edc6e;}
-.edit-btn {background:orange; color:black;}
-.modal {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:3;}
-.modal-content {background:#111; padding:50px; border:1px solid #90ee90; width:90%; max-width:400px; text-align:center;}
-.modal-content img {width:100%; aspect-ratio:1/1; object-fit:cover;}
-input, textarea, select {width:100%; padding:8px; margin:5px 0; border:none;}
-.leaf {position:fixed; top:-50px; font-size:24px; color:#32CD32; z-index:1; pointer-events:none; user-select:none; animation-name:fall; animation-timing-function: linear;}
-@keyframes fall {0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(110vh) rotate(360deg); opacity:0; }}
+button:hover{background:#6edc6e;}
+.edit-btn{background:orange; color:black;}
+.modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:3;}
+.modal-content{background:#111; padding:50px; border:1px solid #90ee90; width:90%; max-width:400px; text-align:center;}
+.modal-content img{width:100%; aspect-ratio:1/1; object-fit:cover;}
+input, textarea, select{width:100%; padding:8px; margin:5px 0; border:none;}
+.leaf{position:fixed; top:-50px; font-size:24px; color:#32CD32; z-index:1; pointer-events:none; user-select:none; animation-name:fall; animation-timing-function:linear;}
+@keyframes fall{0%{transform:translateY(0) rotate(0deg); opacity:1;}100%{transform:translateY(110vh) rotate(360deg); opacity:0;}}
 @media(max-width:900px){.products{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:600px){.products{grid-template-columns:1fr;}.search-box input{width:100%;} body::before { font-size:80px; }}
+@media(max-width:600px){.products{grid-template-columns:1fr;}.search-box input{width:100%;} body::before{font-size:80px;}}
 </style>
 </head>
 <body>
 <header>🛒 Весіня Праця</header>
 <div class="container">
-<div class="search-box">
-<input type="text" id="searchInput" placeholder="Пошук товару..." onkeyup="handleSearch()">
-<select id="categoryFilter" onchange="filterCategory()"><option value="">Всі категорії</option></select>
-</div>
-<div style="text-align:center;">
-<button id="addProductBtn" style="display:none;" onclick="openAddModal()">Додати товар</button>
-<button id="manageCategoriesBtn" style="display:none;" onclick="openCategoryModal()">Категорії</button>
-</div>
-<div class="products" id="products"></div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Пошук товару..." onkeyup="handleSearch()">
+    <select id="categoryFilter" onchange="filterCategory()"><option value="">Всі категорії</option></select>
+  </div>
+  <div style="text-align:center;">
+    <button id="addProductBtn" style="display:none;" onclick="openAddModal()">Додати товар</button>
+    <button id="manageCategoriesBtn" style="display:none;" onclick="openCategoryModal()">Категорії</button>
+  </div>
+  <div class="products" id="products"></div>
 </div>
 
-<!-- Модальне перегляду -->
+<!-- Модали -->
 <div class="modal" id="viewModal">
-<div class="modal-content">
-<img id="modalImg">
-<h3 id="modalTitle"></h3>
-<p id="modalPrice"></p>
-<p id="modalDesc"></p>
-<p id="modalCategory"></p>
-<button onclick="closeModal()">Назад</button>
-</div>
+  <div class="modal-content">
+    <img id="modalImg">
+    <h3 id="modalTitle"></h3>
+    <p id="modalPrice"></p>
+    <p id="modalDesc"></p>
+    <p id="modalCategory"></p>
+    <button onclick="closeModal()">Назад</button>
+  </div>
 </div>
 
-<!-- Модальне редагування -->
 <div class="modal" id="editModal">
-<div class="modal-content">
-<h3 id="editTitleText">Додати товар</h3>
-<input type="text" id="editTitle" placeholder="Назва">
-<input type="number" id="editPrice" placeholder="Ціна">
-<input type="file" id="editImageFile" accept="image/*">
-<textarea id="editDesc" placeholder="Опис"></textarea>
-<select id="editCategory"></select>
-<button onclick="saveProduct()">Зберегти</button>
-<button onclick="closeEditModal()">Скасувати</button>
-<button id="deleteBtn" onclick="deleteProduct()" style="background:red;color:white;display:none;margin-top:5px;">Видалити</button>
-</div>
+  <div class="modal-content">
+    <h3 id="editTitleText">Додати товар</h3>
+    <input type="text" id="editTitle" placeholder="Назва">
+    <input type="number" id="editPrice" placeholder="Ціна">
+    <input type="file" id="editImageFile" accept="image/*">
+    <textarea id="editDesc" placeholder="Опис"></textarea>
+    <select id="editCategory"></select>
+    <button onclick="saveProduct()">Зберегти</button>
+    <button onclick="closeEditModal()">Скасувати</button>
+    <button id="deleteBtn" onclick="deleteProduct()" style="background:red;color:white;display:none;margin-top:5px;">Видалити</button>
+  </div>
 </div>
 
-<!-- Модальне керування категоріями -->
 <div class="modal" id="categoryModal">
-<div class="modal-content">
-<h3>Категорії</h3>
-<div id="categoryList"></div>
-<input type="text" id="newCategory" placeholder="Нова категорія">
-<button onclick="addCategory()">Додати</button>
-<button onclick="closeCategoryModal()">Скасувати</button>
+  <div class="modal-content">
+    <h3>Категорії</h3>
+    <div id="categoryList"></div>
+    <input type="text" id="newCategory" placeholder="Нова категорія">
+    <button onclick="addCategory()">Додати</button>
+    <button onclick="closeCategoryModal()">Скасувати</button>
+  </div>
 </div>
-</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 
 <script>
+// Firebase конфігурація
+const firebaseConfig = {
+  apiKey: "AIzaSyCPEYu_S1qn9dwCkh22QzyX4-hB4_ecM0A",
+  authDomain: "vesinya-pratsya-shop.firebaseapp.com",
+  databaseURL: "https://vesinya-pratsya-shop-default-rtdb.firebaseio.com",
+  projectId: "vesinya-pratsya-shop",
+  storageBucket: "vesinya-pratsya-shop.firebasestorage.app",
+  messagingSenderId: "352467558248",
+  appId: "1:352467558248:web:fd2c80d6be6d837cff80dd",
+  measurementId: "G-NMM6FYEYT8"
+};
+
+// Ініціалізація Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+const db = firebase.database();
+
 // Падаюче листя
 function createLeaf(){
-    const leaf=document.createElement('div');
-    leaf.className='leaf';
-    leaf.style.left=Math.random()*window.innerWidth+'px';
-    leaf.style.fontSize=12+Math.random()*24+'px';
-    leaf.style.animationDuration=5+Math.random()*5+'s';
-    leaf.innerHTML='🍃';
-    document.body.appendChild(leaf);
-    setTimeout(()=>leaf.remove(),10000);
+  const leaf=document.createElement('div');
+  leaf.className='leaf';
+  leaf.style.left=Math.random()*window.innerWidth+'px';
+  leaf.style.fontSize=12+Math.random()*24+'px';
+  leaf.style.animationDuration=5+Math.random()*5+'s';
+  leaf.innerHTML='🍃';
+  document.body.appendChild(leaf);
+  setTimeout(()=>leaf.remove(),10000);
 }
 setInterval(createLeaf,500);
 
 // Магазин
 let adminMode=false;
 let editingId=null;
-let products=JSON.parse(localStorage.getItem("products"))||[
-{id:1,title:"Навушники",price:1500,desc:"Бездротові навушники",image:"https://picsum.photos/500?1",category:"Аудіо"},
-{id:2,title:"Смартфон",price:18000,desc:"Сучасний смартфон",image:"https://picsum.photos/500?2",category:"Телефони"},
-{id:3,title:"Кросівки",price:2700,desc:"Стильні кросівки",image:"https://picsum.photos/500?3",category:"Взуття"}
-];
-let categories=JSON.parse(localStorage.getItem("categories"))||["Аудіо","Телефони","Взуття"];
+let products = [];
+let categories = [];
 
-function saveToStorage(){
-localStorage.setItem("products",JSON.stringify(products));
-localStorage.setItem("categories",JSON.stringify(categories));
-populateCategorySelects();
+// Слухаємо Firebase
+db.ref('products').on('value', snapshot => {
+  products = snapshot.val() || [];
+  renderProducts();
+});
+db.ref('categories').on('value', snapshot => {
+  categories = snapshot.val() || [];
+  populateCategorySelects();
+});
+
+function saveToDatabase(){
+  db.ref('products').set(products);
+  db.ref('categories').set(categories);
 }
 
+// Категорії
 function populateCategorySelects(){
-const editCat=document.getElementById("editCategory");
-const filterCat=document.getElementById("categoryFilter");
-editCat.innerHTML="<option value=''>Без категорії</option>";
-filterCat.innerHTML="<option value=''>Всі категорії</option>";
-categories.forEach(cat=>{
-editCat.innerHTML+=`<option value="${cat}">${cat}</option>`;
-filterCat.innerHTML+=`<option value="${cat}">${cat}</option>`;
-});
-populateCategoryList();
+  const editCat=document.getElementById("editCategory");
+  const filterCat=document.getElementById("categoryFilter");
+  editCat.innerHTML="<option value=''>Без категорії</option>";
+  filterCat.innerHTML="<option value=''>Всі категорії</option>";
+  categories.forEach(cat=>{
+    editCat.innerHTML+=`<option value="${cat}">${cat}</option>`;
+    filterCat.innerHTML+=`<option value="${cat}">${cat}</option>`;
+  });
+  populateCategoryList();
 }
 
 function renderProducts(list=products){
-let container=document.getElementById("products");
-container.innerHTML="";
-list.forEach(p=>{
-container.innerHTML+=`
-<div class="product">
-<img src="${p.image}" onclick="openViewModal(${p.id})">
-<h4>${p.title}</h4>
-<p>${p.price} грн</p>
-<p>${p.category||""}</p>
-${adminMode?`<button class="edit-btn" onclick="openEditModal(${p.id})">Редагувати</button>`:""}
-<button onclick="orderProduct('${encodeURIComponent(p.title)}', ${p.price})">Замовити</button>
-</div>`;
-});
+  const container=document.getElementById("products");
+  container.innerHTML="";
+  list.forEach(p=>{
+    container.innerHTML+=`
+    <div class="product">
+      <img src="${p.image}" onclick="openViewModal(${p.id})">
+      <h4>${p.title}</h4>
+      <p>${p.price} грн</p>
+      <p>${p.category||""}</p>
+      ${adminMode?`<button class="edit-btn" onclick="openEditModal(${p.id})">Редагувати</button>`:""}
+      <button onclick="orderProduct('${encodeURIComponent(p.title)}', ${p.price})">Замовити</button>
+    </div>`;
+  });
 }
 
 function orderProduct(title,price){
-const url=`https://t.me/Fushan90?text=${encodeURIComponent(`Хочу замовити ${decodeURIComponent(title)} за ${price} грн`)}`;
-window.open(url,"_blank");
+  const url=`https://t.me/Fushan90?text=${encodeURIComponent(`Хочу замовити ${decodeURIComponent(title)} за ${price} грн`)}`;
+  window.open(url,"_blank");
 }
 
 function handleSearch(){
-let value=document.getElementById("searchInput").value.toLowerCase();
-if(value==="0990"){adminMode=true;document.getElementById("addProductBtn").style.display="inline-block";document.getElementById("manageCategoriesBtn").style.display="inline-block";renderProducts();return;}
-adminMode=false;document.getElementById("addProductBtn").style.display="none";document.getElementById("manageCategoriesBtn").style.display="none";
-let filtered=products.filter(p=>p.title.toLowerCase().includes(value));
-renderProducts(filtered);
+  let value=document.getElementById("searchInput").value.toLowerCase();
+  if(value==="0990"){
+    adminMode=true;
+    document.getElementById("addProductBtn").style.display="inline-block";
+    document.getElementById("manageCategoriesBtn").style.display="inline-block";
+    renderProducts();
+    return;
+  }
+  adminMode=false;
+  document.getElementById("addProductBtn").style.display="none";
+  document.getElementById("manageCategoriesBtn").style.display="none";
+  let filtered=products.filter(p=>p.title.toLowerCase().includes(value));
+  renderProducts(filtered);
 }
 
 function filterCategory(){
-const cat=document.getElementById("categoryFilter").value;
-if(!cat){renderProducts(); return;}
-renderProducts(products.filter(p=>p.category===cat));
+  const cat=document.getElementById("categoryFilter").value;
+  if(!cat){renderProducts(); return;}
+  renderProducts(products.filter(p=>p.category===cat));
 }
 
-function openViewModal(id){
-let p=products.find(x=>x.id===id);
-document.getElementById("modalImg").src=p.image;
-document.getElementById("modalTitle").innerText=p.title;
-document.getElementById("modalPrice").innerText=p.price+" грн";
-document.getElementById("modalDesc").innerText=p.desc;
-document.getElementById("modalCategory").innerText=p.category?"Категорія: "+p.category:"";
-document.getElementById("viewModal").style.display="flex";
-}
-
+// Модали
+function openViewModal(id){let p=products.find(x=>x.id===id);document.getElementById("modalImg").src=p.image;document.getElementById("modalTitle").innerText=p.title;document.getElementById("modalPrice").innerText=p.price+" грн";document.getElementById("modalDesc").innerText=p.desc;document.getElementById("modalCategory").innerText=p.category?"Категорія: "+p.category:"";document.getElementById("viewModal").style.display="flex";}
 function closeModal(){document.getElementById("viewModal").style.display="none";}
-
-function openAddModal(){
-editingId=null;
-document.getElementById("editTitleText").innerText="Додати товар";
-document.getElementById("editTitle").value="";
-document.getElementById("editPrice").value="";
-document.getElementById("editImageFile").value="";
-document.getElementById("editDesc").value="";
-document.getElementById("editCategory").value="";
-document.getElementById("deleteBtn").style.display="none";
-document.getElementById("editModal").style.display="flex";
-}
-
-function openEditModal(id){
-let p=products.find(x=>x.id===id);
-editingId=id;
-document.getElementById("editTitleText").innerText="Редагувати товар";
-document.getElementById("editTitle").value=p.title;
-document.getElementById("editPrice").value=p.price;
-document.getElementById("editDesc").value=p.desc;
-document.getElementById("editCategory").value=p.category||"";
-document.getElementById("editImageFile").value="";
-document.getElementById("deleteBtn").style.display="block";
-document.getElementById("editModal").style.display="flex";
-}
-
+function openAddModal(){editingId=null;document.getElementById("editTitleText").innerText="Додати товар";document.getElementById("editTitle").value="";document.getElementById("editPrice").value="";document.getElementById("editImageFile").value="";document.getElementById("editDesc").value="";document.getElementById("editCategory").value="";document.getElementById("deleteBtn").style.display="none";document.getElementById("editModal").style.display="flex";}
+function openEditModal(id){let p=products.find(x=>x.id===id);editingId=id;document.getElementById("editTitleText").innerText="Редагувати товар";document.getElementById("editTitle").value=p.title;document.getElementById("editPrice").value=p.price;document.getElementById("editDesc").value=p.desc;document.getElementById("editCategory").value=p.category||"";document.getElementById("editImageFile").value="";document.getElementById("deleteBtn").style.display="block";document.getElementById("editModal").style.display="flex";}
 function closeEditModal(){document.getElementById("editModal").style.display="none";}
+function saveProduct(){let title=document.getElementById("editTitle").value;let price=document.getElementById("editPrice").value;let desc=document.getElementById("editDesc").value;let category=document.getElementById("editCategory").value;let fileInput=document.getElementById("editImageFile");if(!title||!price||!desc)return alert("Заповніть всі поля");if(fileInput.files && fileInput.files[0]){let reader=new FileReader();reader.onload=function(e){saveProductData(title,price,desc,category,e.target.result);};reader.readAsDataURL(fileInput.files[0]);}else{let existingImage=null;if(editingId){existingImage=products.find(x=>x.id===editingId).image;}saveProductData(title,price,desc,category,existingImage);}}
+function saveProductData(title,price,desc,category,image){if(editingId){let p=products.find(x=>x.id===editingId);p.title=title;p.price=price;p.desc=desc;p.category=category;p.image=image;}else{products.push({id:Date.now(),title,price,desc,image,category});}saveToDatabase();closeEditModal();renderProducts();}
+function deleteProduct(){if(editingId){if(confirm("Ви впевнені, що хочете видалити цей товар?")){products=products.filter(p=>p.id!==editingId);saveToDatabase();renderProducts();closeEditModal();}}}
 
-function saveProduct(){
-let title=document.getElementById("editTitle").value;
-let price=document.getElementById("editPrice").value;
-let desc=document.getElementById("editDesc").value;
-let category=document.getElementById("editCategory").value;
-let fileInput=document.getElementById("editImageFile");
-if(!title||!price||!desc) return alert("Заповніть всі поля");
-if(fileInput.files && fileInput.files[0]){
-let reader=new FileReader();
-reader.onload=function(e){saveProductData(title,price,desc,category,e.target.result);}
-reader.readAsDataURL(fileInput.files[0]);
-}else{
-let existingImage=null;
-if(editingId){existingImage=products.find(x=>x.id===editingId).image;}
-saveProductData(title,price,desc,category,existingImage);
-}
-}
-
-function saveProductData(title,price,desc,category,image){
-if(editingId){
-let p=products.find(x=>x.id===editingId);
-p.title=title;p.price=price;p.desc=desc;p.category=category;p.image=image;
-}else{products.push({id:Date.now(),title,price,desc,image,category});}
-saveToStorage();closeEditModal();renderProducts();
-}
-
-function deleteProduct(){
-if(editingId){
-if(confirm("Ви впевнені, що хочете видалити цей товар?")){
-products=products.filter(p=>p.id!==editingId);
-saveToStorage();renderProducts();closeEditModal();
-}}
-}
-
-// Керування категоріями
+// Категорії
 function openCategoryModal(){document.getElementById("categoryModal").style.display="flex";}
 function closeCategoryModal(){document.getElementById("categoryModal").style.display="none";}
-function populateCategoryList(){
-let list=document.getElementById("categoryList");
-list.innerHTML="";
-categories.forEach(cat=>{
-list.innerHTML+=`<div>${cat} <button onclick="removeCategory('${cat}')">Видалити</button></div>`;
-});
-}
-function addCategory(){
-let cat=document.getElementById("newCategory").value.trim();
-if(!cat) return;
-if(!categories.includes(cat)) categories.push(cat);
-document.getElementById("newCategory").value="";
-saveToStorage();
-}
-function removeCategory(cat){
-if(confirm(`Видалити категорію "${cat}"? Всі товари залишаться без категорії.`)){
-categories=categories.filter(c=>c!==cat);
-products.forEach(p=>{if(p.category===cat) p.category="";});
-saveToStorage();
-}
-}
+function populateCategoryList(){let list=document.getElementById("categoryList");list.innerHTML="";categories.forEach(cat=>{list.innerHTML+=`<div>${cat} <button onclick="removeCategory('${cat}')">Видалити</button></div>`;});}
+function addCategory(){let cat=document.getElementById("newCategory").value.trim();if(!cat)return;if(!categories.includes(cat))categories.push(cat);document.getElementById("newCategory").value="";saveToDatabase();}
+function removeCategory(cat){if(confirm(`Видалити категорію "${cat}"? Всі товари залишаться без категорії.`)){categories=categories.filter(c=>c!==cat);products.forEach(p=>{if(p.category===cat)p.category="";});saveToDatabase();}}
 
 populateCategorySelects();
 renderProducts();
