@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
@@ -13,13 +13,13 @@ header {background:#111; padding:20px; text-align:center; font-size:26px; positi
 .search-box input {padding:11px; width:275px; border:none; color:#de9210;}
 .products {display:grid; grid-template-columns:repeat(3,1fr); gap:22px; position:relative; z-index:2;}
 .product {background:#111; padding:10px; border:5px solid #90ee90; text-align:center;}
-.product img {width:100%; aspect-ratio:1/1; object-fit:cover; cursor:pointer;}
+.product img {width:100%; aspect-ratio:1/1; object-fit:contain; cursor:pointer;}
 button {padding:8px 25px; border:none; background:#90ee90; font-weight:bold; cursor:pointer; margin-top:10px;}
 button:hover{background:#6edc6e;}
 .edit-btn{background:orange; color:black;}
 .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:3;}
 .modal-content{background:#111; padding:50px; border:1px solid #90ee90; width:90%; max-width:400px; text-align:center;}
-.modal-content img{width:100%; aspect-ratio:1/1; object-fit:cover;}
+.modal-content img{width:100%; aspect-ratio:1/1; object-fit:contain;}
 input, textarea, select{width:100%; padding:8px; margin:5px 0; border:none;}
 .leaf{position:fixed; top:-50px; font-size:24px; color:#32CD32; z-index:1; pointer-events:none; user-select:none; animation-name:fall; animation-timing-function:linear;}
 @keyframes fall{0%{transform:translateY(0) rotate(0deg); opacity:1;}100%{transform:translateY(110vh) rotate(360deg); opacity:0;}}
