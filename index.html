@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Inst asortiments</title>
 <style>
 body {margin:0; font-family:Arial; background:#000; color:#90ee90; position:relative; min-height:100vh; overflow-x:hidden;}
@@ -43,12 +43,22 @@ input, textarea, select{width:100%; padding:8px; margin:5px 0; border:none;}
 
 <!-- Модали -->
 <div class="modal" id="viewModal">
-  <div class="modal-content">
-    <img id="modalImg">
+  <div class="modal-content" style="position:relative;">
+    <!-- Кнопка влево -->
+    <button onclick="prevImage()" style="position:absolute;left:-40px;top:45%;font-size:25px; background:none; border:none; color:#90ee90; cursor:pointer;">◀</button>
+
+    <!-- Картинка -->
+    <img id="modalImg" style="width:100%; aspect-ratio:1/1; object-fit:contain;">
+
+    <!-- Кнопка вправо -->
+    <button onclick="nextImage()" style="position:absolute;right:-40px;top:45%;font-size:25px; background:none; border:none; color:#90ee90; cursor:pointer;">▶</button>
+
+    <!-- Текстовая информация -->
     <h3 id="modalTitle"></h3>
     <p id="modalPrice"></p>
     <p id="modalDesc"></p>
     <p id="modalCategory"></p>
+
     <button onclick="closeModal()">Назад</button>
   </div>
 </div>
@@ -58,7 +68,11 @@ input, textarea, select{width:100%; padding:8px; margin:5px 0; border:none;}
     <h3 id="editTitleText">Додати товар</h3>
     <input type="text" id="editTitle" placeholder="Назва">
     <input type="number" id="editPrice" placeholder="Ціна">
-    <input type="file" id="editImageFile" accept="image/*">
+    <div id="imageUploadContainer" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;">
+  <!-- Тут будут превью загруженных фото -->
+  <div id="addImageBtn" style="width:60px; height:60px; border:2px dashed #90ee90; display:flex; justify-content:center; align-items:center; cursor:pointer; font-size:30px; color:#90ee90;">+</div>
+</div>
+<input type="file" id="editImageFile" accept="image/*" style="display:none;" multiple>
     <textarea id="editDesc" placeholder="Опис"></textarea>
     <select id="editCategory"></select>
     <button onclick="saveProduct()">Зберегти</button>
@@ -209,6 +223,180 @@ function removeCategory(cat){if(confirm(`Видалити категорію "${
 
 populateCategorySelects();
 renderProducts();
+
+// Массив текущих фото и индекс для модалки
+let currentImages = [];
+let currentIndex = 0;
+
+// Открытие модалки с товаром
+function openViewModal(id){
+  let p = products.find(x => x.id === id);
+
+  // Проверяем, массив фото или одно изображение
+  currentImages = Array.isArray(p.image) ? p.image : [p.image];
+  currentIndex = 0;
+
+  // Показ первой картинки
+  document.getElementById("modalImg").src = currentImages[currentIndex];
+  document.getElementById("modalTitle").innerText = p.title;
+  document.getElementById("modalPrice").innerText = p.price + " грн";
+  document.getElementById("modalDesc").innerText = p.desc;
+  document.getElementById("modalCategory").innerText = p.category ? "Категорія: " + p.category : "";
+
+  document.getElementById("viewModal").style.display = "flex";
+}
+
+// Закрытие модалки
+function closeModal(){
+  document.getElementById("viewModal").style.display = "none";
+}
+
+// Листание фото
+function nextImage(){
+  if(currentImages.length < 2) return;
+  currentIndex++;
+  if(currentIndex >= currentImages.length) currentIndex = 0;
+  document.getElementById("modalImg").src = currentImages[currentIndex];
+}
+
+function prevImage(){
+  if(currentImages.length < 2) return;
+  currentIndex--;
+  if(currentIndex < 0) currentIndex = currentImages.length - 1;
+  document.getElementById("modalImg").src = currentImages[currentIndex];
+}
+
+// Массив для временных фото при редактировании
+let tempImages = [];
+
+// Кнопка "плюс"
+const addImageBtn = document.getElementById("addImageBtn");
+const fileInput = document.getElementById("editImageFile");
+const container = document.getElementById("imageUploadContainer");
+
+// Клик по "+"
+addImageBtn.onclick = () => fileInput.click();
+
+// Когда выбираем файлы
+fileInput.onchange = () => {
+  const files = Array.from(fileInput.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      tempImages.push(e.target.result);
+      renderTempImages();
+    };
+    reader.readAsDataURL(file);
+  });
+  // Сбрасываем input, чтобы можно было выбрать те же файлы снова
+  fileInput.value = "";
+}
+
+// Функция отображения превью
+function renderTempImages(){
+  // Удаляем старые превью кроме кнопки "+"
+  container.querySelectorAll(".tempImg").forEach(el => el.remove());
+
+  tempImages.forEach((src, index) => {
+    const div = document.createElement("div");
+    div.className = "tempImg";
+    div.style.position = "relative";
+    div.style.width = "60px";
+    div.style.height = "60px";
+    div.style.border = "1px solid #90ee90";
+    div.style.backgroundImage = `url(${src})`;
+    div.style.backgroundSize = "cover";
+    div.style.backgroundPosition = "center";
+    div.style.cursor = "pointer";
+
+    // Кнопка удалить
+    const del = document.createElement("div");
+    del.innerText = "×";
+    del.style.position = "absolute";
+    del.style.top = "0";
+    del.style.right = "0";
+    del.style.background = "red";
+    del.style.color = "white";
+    del.style.width = "18px";
+    del.style.height = "18px";
+    del.style.fontSize = "14px";
+    del.style.display = "flex";
+    del.style.justifyContent = "center";
+    del.style.alignItems = "center";
+    del.style.cursor = "pointer";
+    del.onclick = (e) => {
+      e.stopPropagation();
+      tempImages.splice(index, 1);
+      renderTempImages();
+    };
+    div.appendChild(del);
+    container.insertBefore(div, addImageBtn);
+  });
+}
+
+// Изменяем saveProduct(), чтобы использовались tempImages
+function saveProduct(){
+  let title=document.getElementById("editTitle").value;
+  let price=document.getElementById("editPrice").value;
+  let desc=document.getElementById("editDesc").value;
+  let category=document.getElementById("editCategory").value;
+  if(!title||!price||!desc)return alert("Заповніть всі поля");
+
+  // Если есть tempImages, сохраняем их
+  let images = tempImages.length > 0 ? [...tempImages] : (editingId ? products.find(x=>x.id===editingId).image : []);
+
+  if(editingId){
+    let p=products.find(x=>x.id===editingId);
+    p.title=title;
+    p.price=price;
+    p.desc=desc;
+    p.category=category;
+    p.image = images;
+  } else {
+    products.push({
+      id: Date.now(),
+      title,
+      price,
+      desc,
+      category,
+      image: images
+    });
+  }
+
+  saveToDatabase();
+  closeEditModal();
+  renderProducts();
+}
+
+// Когда открываем модалку редактирования товара, загружаем существующие фото в tempImages
+function openEditModal(id){
+  let p = products.find(x=>x.id===id);
+  editingId=id;
+  document.getElementById("editTitleText").innerText="Редагувати товар";
+  document.getElementById("editTitle").value=p.title;
+  document.getElementById("editPrice").value=p.price;
+  document.getElementById("editDesc").value=p.desc;
+  document.getElementById("editCategory").value=p.category||"";
+  tempImages = Array.isArray(p.image) ? [...p.image] : (p.image ? [p.image] : []);
+  renderTempImages();
+  document.getElementById("deleteBtn").style.display="block";
+  document.getElementById("editModal").style.display="flex";
+}
+
+// При открытии "добавить товар" очищаем tempImages
+function openAddModal(){
+  editingId=null;
+  document.getElementById("editTitleText").innerText="Додати товар";
+  document.getElementById("editTitle").value="";
+  document.getElementById("editPrice").value="";
+  document.getElementById("editDesc").value="";
+  document.getElementById("editCategory").value="";
+  tempImages = [];
+  renderTempImages();
+  document.getElementById("deleteBtn").style.display="none";
+  document.getElementById("editModal").style.display="flex";
+}
+
 </script>
 </body>
 </html>
