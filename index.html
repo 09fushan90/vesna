@@ -161,19 +161,24 @@ function populateCategorySelects(){
   populateCategoryList();
 }
 
-function renderProducts(list=products){
-  const container=document.getElementById("products");
-  container.innerHTML="";
-  list.forEach(p=>{
-    container.innerHTML+=`
-    <div class="product">
-      <img src="${p.image}" onclick="openViewModal(${p.id})">
-      <h4>${p.title}</h4>
-      <p>${p.price} грн</p>
-      <p>${p.category||""}</p>
-      ${adminMode?`<button class="edit-btn" onclick="openEditModal(${p.id})">Редагувати</button>`:""}
-      <button onclick="orderProduct('${encodeURIComponent(p.title)}', ${p.price})">Замовити</button>
-    </div>`;
+function renderProducts(list = products){
+  const container = document.getElementById("products");
+  container.innerHTML = "";
+
+  list.forEach(p => {
+    // Выбираем первое фото, если их несколько
+    const displayImage = Array.isArray(p.image) ? p.image[0] : p.image;
+
+    container.innerHTML += `
+      <div class="product">
+        <img src="${displayImage}" onclick="openViewModal(${p.id})">
+        <h4>${p.title}</h4>
+        <p>${p.price} грн</p>
+        <p>${p.category || ""}</p>
+        ${adminMode ? `<button class="edit-btn" onclick="openEditModal(${p.id})">Редагувати</button>` : ""}
+        <button onclick="orderProduct('${encodeURIComponent(p.title)}', ${p.price})">Замовити</button>
+      </div>
+    `;
   });
 }
 
@@ -224,19 +229,40 @@ function removeCategory(cat){if(confirm(`Видалити категорію "${
 populateCategorySelects();
 renderProducts();
 
-// Массив текущих фото и индекс для модалки
+// Массив временных фото для редактирования
+let tempImages = [];
+
+// renderProducts() — рендер карточек товаров
+function renderProducts(list = products){
+  const container = document.getElementById("products");
+  container.innerHTML = "";
+
+  list.forEach(p => {
+    // Показываем первое фото
+    const displayImage = Array.isArray(p.image) ? p.image[0] : p.image;
+
+    container.innerHTML += `
+      <div class="product">
+        <img src="${displayImage}" onclick="openViewModal(${p.id})">
+        <h4>${p.title}</h4>
+        <p>${p.price} грн</p>
+        <p>${p.category || ""}</p>
+        ${adminMode ? `<button class="edit-btn" onclick="openEditModal(${p.id})">Редагувати</button>` : ""}
+        <button onclick="orderProduct('${encodeURIComponent(p.title)}', ${p.price})">Замовити</button>
+      </div>
+    `;
+  });
+}
+
+// Открытие модалки просмотра с листанием фото
 let currentImages = [];
 let currentIndex = 0;
 
-// Открытие модалки с товаром
 function openViewModal(id){
   let p = products.find(x => x.id === id);
-
-  // Проверяем, массив фото или одно изображение
   currentImages = Array.isArray(p.image) ? p.image : [p.image];
   currentIndex = 0;
 
-  // Показ первой картинки
   document.getElementById("modalImg").src = currentImages[currentIndex];
   document.getElementById("modalTitle").innerText = p.title;
   document.getElementById("modalPrice").innerText = p.price + " грн";
@@ -246,12 +272,10 @@ function openViewModal(id){
   document.getElementById("viewModal").style.display = "flex";
 }
 
-// Закрытие модалки
 function closeModal(){
   document.getElementById("viewModal").style.display = "none";
 }
 
-// Листание фото
 function nextImage(){
   if(currentImages.length < 2) return;
   currentIndex++;
@@ -266,18 +290,13 @@ function prevImage(){
   document.getElementById("modalImg").src = currentImages[currentIndex];
 }
 
-// Массив для временных фото при редактировании
-let tempImages = [];
-
-// Кнопка "плюс"
+// Работа с фото в форме редактирования / добавления
 const addImageBtn = document.getElementById("addImageBtn");
 const fileInput = document.getElementById("editImageFile");
 const container = document.getElementById("imageUploadContainer");
 
-// Клик по "+"
 addImageBtn.onclick = () => fileInput.click();
 
-// Когда выбираем файлы
 fileInput.onchange = () => {
   const files = Array.from(fileInput.files);
   files.forEach(file => {
@@ -288,13 +307,11 @@ fileInput.onchange = () => {
     };
     reader.readAsDataURL(file);
   });
-  // Сбрасываем input, чтобы можно было выбрать те же файлы снова
   fileInput.value = "";
 }
 
-// Функция отображения превью
+// Отрисовка превью фото
 function renderTempImages(){
-  // Удаляем старые превью кроме кнопки "+"
   container.querySelectorAll(".tempImg").forEach(el => el.remove());
 
   tempImages.forEach((src, index) => {
@@ -309,7 +326,6 @@ function renderTempImages(){
     div.style.backgroundPosition = "center";
     div.style.cursor = "pointer";
 
-    // Кнопка удалить
     const del = document.createElement("div");
     del.innerText = "×";
     del.style.position = "absolute";
@@ -334,41 +350,21 @@ function renderTempImages(){
   });
 }
 
-// Изменяем saveProduct(), чтобы использовались tempImages
-function saveProduct(){
-  let title=document.getElementById("editTitle").value;
-  let price=document.getElementById("editPrice").value;
-  let desc=document.getElementById("editDesc").value;
-  let category=document.getElementById("editCategory").value;
-  if(!title||!price||!desc)return alert("Заповніть всі поля");
-
-  // Если есть tempImages, сохраняем их
-  let images = tempImages.length > 0 ? [...tempImages] : (editingId ? products.find(x=>x.id===editingId).image : []);
-
-  if(editingId){
-    let p=products.find(x=>x.id===editingId);
-    p.title=title;
-    p.price=price;
-    p.desc=desc;
-    p.category=category;
-    p.image = images;
-  } else {
-    products.push({
-      id: Date.now(),
-      title,
-      price,
-      desc,
-      category,
-      image: images
-    });
-  }
-
-  saveToDatabase();
-  closeEditModal();
-  renderProducts();
+// Открытие модалки "добавить товар"
+function openAddModal(){
+  editingId=null;
+  document.getElementById("editTitleText").innerText="Додати товар";
+  document.getElementById("editTitle").value="";
+  document.getElementById("editPrice").value="";
+  document.getElementById("editDesc").value="";
+  document.getElementById("editCategory").value="";
+  tempImages = [];
+  renderTempImages();
+  document.getElementById("deleteBtn").style.display="none";
+  document.getElementById("editModal").style.display="flex";
 }
 
-// Когда открываем модалку редактирования товара, загружаем существующие фото в tempImages
+// Открытие модалки "редактировать товар"
 function openEditModal(id){
   let p = products.find(x=>x.id===id);
   editingId=id;
@@ -383,18 +379,41 @@ function openEditModal(id){
   document.getElementById("editModal").style.display="flex";
 }
 
-// При открытии "добавить товар" очищаем tempImages
-function openAddModal(){
-  editingId=null;
-  document.getElementById("editTitleText").innerText="Додати товар";
-  document.getElementById("editTitle").value="";
-  document.getElementById("editPrice").value="";
-  document.getElementById("editDesc").value="";
-  document.getElementById("editCategory").value="";
-  tempImages = [];
-  renderTempImages();
-  document.getElementById("deleteBtn").style.display="none";
-  document.getElementById("editModal").style.display="flex";
+// Сохранение товара
+function saveProduct(){
+  let title=document.getElementById("editTitle").value;
+  let price=document.getElementById("editPrice").value;
+  let desc=document.getElementById("editDesc").value;
+  let category=document.getElementById("editCategory").value;
+  if(!title||!price||!desc)return alert("Заповніть всі поля");
+
+  let images = tempImages.length > 0 ? [...tempImages] : (editingId ? products.find(x=>x.id===editingId).image : []);
+
+  saveProductData(title, price, desc, category, images);
+}
+
+// saveProductData с массивом изображений
+function saveProductData(title, price, desc, category, images){
+  if(editingId){
+    let p = products.find(x => x.id === editingId);
+    p.title = title;
+    p.price = price;
+    p.desc = desc;
+    p.category = category;
+    p.image = Array.isArray(images) ? images : [images];
+  } else {
+    products.push({
+      id: Date.now(),
+      title,
+      price,
+      desc,
+      category,
+      image: Array.isArray(images) ? images : [images]
+    });
+  }
+  saveToDatabase();
+  closeEditModal();
+  renderProducts();
 }
 
 </script>
