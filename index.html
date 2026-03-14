@@ -99,6 +99,7 @@ input, textarea, select{width:100%; padding:8px; margin:5px 0; border:none;}
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <script>
 // Firebase конфігурація
@@ -117,6 +118,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 firebase.analytics();
 const db = firebase.database();
+const storage = firebase.storage();
 
 // Падаюче листя
 function createLeaf(){
@@ -556,6 +558,32 @@ updateTransform();
 img.addEventListener("touchend", function(){
 
 });
+img.addEventListener("touchend", function(){
+
+});
+
+
+// ===== ЗАГРУЗКА ФОТО В FIREBASE STORAGE =====
+async function uploadImagesToFirebase(files){
+
+  const urls = [];
+
+  for(const file of files){
+
+    const fileName = Date.now() + "_" + file.name;
+
+    const storageRef = storage.ref("products/" + fileName);
+
+    await storageRef.put(file);
+
+    const url = await storageRef.getDownloadURL();
+
+    urls.push(url);
+
+  }
+
+  return urls;
+}
 
 </script>
 </body>
