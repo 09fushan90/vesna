@@ -86,6 +86,10 @@ outline:none;
 border:none;
 }
 
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
 body {margin:0; font-family:Arial; background:#000; color:#90ee90; position:relative; min-height:100vh; overflow-x:hidden;}
 body::before {content:"Inst asortiments"; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); font-size:200px; color:rgba(144,238,144,0.05); font-weight:bold; white-space:nowrap; z-index:0; pointer-events:none;}
 header {background:#111; padding:20px; text-align:center; font-size:26px; position:relative; z-index:2;}
@@ -100,19 +104,99 @@ header {background:#111; padding:20px; text-align:center; font-size:26px; positi
   box-sizing:border-box;
 }
 
-.products {display:grid; grid-template-columns:repeat(3,1fr); gap:22px; position:relative; z-index:2;}
-.product {background:#111; padding:20px; border:5px solid #90ee90; text-align:center;}
+.products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* ключевой фикс */
+  gap: 10px;
+}
+.product {
+  min-width: 0;   /* КРИТИЧНО для мобилки */
+  width: 100%;
+  overflow: hidden;
+}
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+  justify-content: center;
+  gap: 15px;
+}
+.product h4,
+.product p {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+} 
+
+.product {
+  background:#111;
+  padding:10px;
+  border:5px solid #90ee90;
+  text-align:center;
+
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* ВАЖНО */
+}
+.product h4 {
+  font-size: 16px;
+  margin: 15px 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* обрезает в одну строку */
+}
+.product p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.product {
+  word-break: break-word;
+}
+.products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px; /* расстояние между карточками */
+}
 .product img {
   width:100%;
-  height:260px;
+  height:140px;
   object-fit:contain;
  cursor:pointer; border: 3xp solid #32cd32; border: 12xp;
+}
+* {
+  box-sizing: border-box;
 }
 button {padding:8px 25px; border:none; background:#90ee90; font-weight:bold; cursor:pointer; margin-top:10px;}
 button:hover{background:#6edc6e;}
 .edit-btn{background:orange; color:black;}
 .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:3;}
-.modal-content{background:#111; padding:50px; border:1px solid #90ee90; width:90%; max-width:400px; text-align:center;}
+.modal-content{
+  background:#111;
+  padding:50px;
+  border:1px solid #90ee90;
+  width:90%;
+  max-width:400px;
+  text-align:center;
+
+  max-height:90vh;        /* ограничиваем высоту */
+  overflow-y:auto;        /* включаем вертикальный скролл */
+}
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+.modal-content {
+  scroll-behavior: smooth;
+}.modal-content::-webkit-scrollbar {
+  width:6px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background:#90ee90;
+  border-radius:10px;
+}
+
 .modal-content img{width:100%; aspect-ratio:1/1; object-fit:contain;  border: 3xp solid red; padding: 12xp; background: #111;}
 input, textarea, select{width:100%; padding:8px; margin:5px 0; border:none;}
 .leaf{position:fixed; top:-50px; font-size:24px; color:#32CD32; z-index:1; pointer-events:none; user-select:none; animation-name:fall; animation-timing-function:linear;}
@@ -392,6 +476,7 @@ function renderProducts(list = products){
 
 function openViewModal(id){
   let p = products.find(x => x.id === id);
+
   currentImages = Array.isArray(p.image) ? p.image : [p.image];
   currentIndex = 0;
 
@@ -402,10 +487,14 @@ function openViewModal(id){
   document.getElementById("modalCategory").innerText = p.category ? "Категорія: " + p.category : "";
 
   document.getElementById("viewModal").style.display = "flex";
+
+  document.body.classList.add("no-scroll"); 
 }
 
 function closeModal(){
   document.getElementById("viewModal").style.display = "none";
+
+  document.body.classList.remove("no-scroll");
 }
 
 function nextImage(){
